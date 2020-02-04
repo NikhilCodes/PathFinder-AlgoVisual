@@ -1,9 +1,10 @@
 # Path Finder Algorithm Visualization
-Visualization Source Code available for
+Visualization Source Code available for:
 
 + Dijkstra
 
 ## Usage
+Run `python main.py`
 - Place mouse cursor over a cell and press `s` to set it source.
 - Left click over any other cells to create obstacle and right click to remove obstacle.
 - Place mouse cursor over another cell and press `d` to set it as destination, and the path finding should start automatically.
