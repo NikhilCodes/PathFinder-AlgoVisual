@@ -17,6 +17,7 @@ source_coord = None
 backup_source_coord = None
 destination_coord = None
 prev_path = None
+obstacles = set()
 #
 
 pygame.init()
@@ -69,18 +70,21 @@ def mainloop():
                 mouse_pos = pygame.mouse.get_pos()
 
                 box_coord = get_node_pos_by_mouse_pos(mouse_pos, GRID_SIZE, N_NODES_ON_EDGE)
-
+                if box_coord in obstacles:
+                    continue
                 draw_square(screen, box_coord, START_END_CELL_COLOR)
                 if source_coord is None:
                     source_coord = backup_source_coord
                     for coord in prev_path[1:]:
-                        reset_cell(screen, coord)
+                        if coord not in obstacles:
+                            reset_cell(screen, coord)
 
                 destination_coord = box_coord
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 box_coord = get_node_pos_by_mouse_pos(event.pos, GRID_SIZE, N_NODES_ON_EDGE)
                 if event.button == 1:
                     draw_square(screen, box_coord, OBSTACLE_COLOR)
+                    obstacles.add(box_coord)
                     GRAPH.kill_node(box_coord)
                 elif event.button == 3:
                     reset_cell(screen, box_coord)
