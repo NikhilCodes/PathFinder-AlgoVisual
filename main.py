@@ -19,6 +19,7 @@ destination_coord = None
 backup_destination_coord = None
 prev_path = []
 obstacles = set()
+last_mouse_button_pressed = None
 #
 
 pygame.init()
@@ -78,6 +79,7 @@ def mainloop():
                 box_coord = get_node_pos_by_mouse_pos(mouse_pos, GRID_SIZE, N_NODES_ON_EDGE)
                 if box_coord in obstacles:
                     continue
+
                 draw_square(screen, box_coord, START_END_CELL_COLOR)
                 destination_coord = box_coord
                 backup_destination_coord = box_coord
@@ -88,31 +90,31 @@ def mainloop():
                         if coord not in obstacles and coord != destination_coord:
                             reset_cell(screen, coord)
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                box_coord = get_node_pos_by_mouse_pos(event.pos, GRID_SIZE, N_NODES_ON_EDGE)
-                if event.button == 1:
-                    draw_square(screen, box_coord, OBSTACLE_COLOR)
-                    obstacles.add(box_coord)
-                    GRAPH.kill_node(box_coord)
+            elif pygame.mouse.get_pressed()[0]:
+                box_coord = get_node_pos_by_mouse_pos(pygame.mouse.get_pos(), GRID_SIZE, N_NODES_ON_EDGE)
+                draw_square(screen, box_coord, OBSTACLE_COLOR)
+                obstacles.add(box_coord)
+                GRAPH.kill_node(box_coord)
 
-                    if box_coord in prev_path:
-                        source_coord = backup_source_coord
-                        destination_coord = backup_destination_coord
-                        clean_previous_path()
-
-                elif event.button == 3:
-                    reset_cell(screen, box_coord)
-
-                    for displacement_vector in neighbour_displacements:
-                        neighbour_node = add_vector(displacement_vector, box_coord, 2)
-                        if -1 not in neighbour_node and neighbour_node in GRAPH.data.keys():
-                            GRAPH.add_edge(box_coord, neighbour_node,
-                                           get_distance_from_neighbour_vector(displacement_vector))
-
-                    obstacles.discard(box_coord)
+                if box_coord in prev_path:
                     source_coord = backup_source_coord
                     destination_coord = backup_destination_coord
                     clean_previous_path()
+
+            elif pygame.mouse.get_pressed()[2]:
+                box_coord = get_node_pos_by_mouse_pos(pygame.mouse.get_pos(), GRID_SIZE, N_NODES_ON_EDGE)
+                reset_cell(screen, box_coord)
+
+                for displacement_vector in neighbour_displacements:
+                    neighbour_node = add_vector(displacement_vector, box_coord, 2)
+                    if -1 not in neighbour_node and neighbour_node in GRAPH.data.keys():
+                        GRAPH.add_edge(box_coord, neighbour_node,
+                                       get_distance_from_neighbour_vector(displacement_vector))
+
+                obstacles.discard(box_coord)
+                source_coord = backup_source_coord
+                destination_coord = backup_destination_coord
+                clean_previous_path()
 
         if source_coord and destination_coord:
             path, distance = dijkstra(GRAPH, source_coord, destination_coord, screen)
