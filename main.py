@@ -16,7 +16,8 @@ GRAPH = None
 source_coord = None
 backup_source_coord = None
 destination_coord = None
-prev_path = None
+backup_destination_coord = None
+prev_path = []
 obstacles = set()
 #
 
@@ -50,7 +51,7 @@ prepare_background()
 
 
 def mainloop():
-    global source_coord, backup_source_coord, destination_coord, prev_path, GRAPH
+    global source_coord, backup_source_coord, destination_coord, backup_destination_coord, prev_path, GRAPH
 
     while True:
         for event in pygame.event.get():
@@ -73,19 +74,30 @@ def mainloop():
                 if box_coord in obstacles:
                     continue
                 draw_square(screen, box_coord, START_END_CELL_COLOR)
+                destination_coord = box_coord
+                backup_destination_coord = box_coord
+
                 if source_coord is None:
                     source_coord = backup_source_coord
                     for coord in prev_path[1:]:
-                        if coord not in obstacles:
+                        if coord not in obstacles and coord != destination_coord:
                             reset_cell(screen, coord)
 
-                destination_coord = box_coord
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 box_coord = get_node_pos_by_mouse_pos(event.pos, GRID_SIZE, N_NODES_ON_EDGE)
                 if event.button == 1:
                     draw_square(screen, box_coord, OBSTACLE_COLOR)
                     obstacles.add(box_coord)
                     GRAPH.kill_node(box_coord)
+
+                    if box_coord in prev_path:
+                        source_coord = backup_source_coord
+                        destination_coord = backup_destination_coord
+
+                        for coord in prev_path[1:-2]:
+                            if coord not in obstacles:
+                                reset_cell(screen, coord)
+
                 elif event.button == 3:
                     reset_cell(screen, box_coord)
 
@@ -94,6 +106,9 @@ def mainloop():
                         if -1 not in neighbour_node and neighbour_node in GRAPH.data.keys():
                             GRAPH.add_edge(box_coord, neighbour_node,
                                            get_distance_from_neighbour_vector(displacement_vector))
+
+                    source_coord = backup_source_coord
+                    destination_coord = backup_destination_coord
 
         if source_coord and destination_coord:
             path, distance = dijkstra(GRAPH, source_coord, destination_coord, screen)
