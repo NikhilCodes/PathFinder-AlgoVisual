@@ -53,6 +53,11 @@ prepare_background()
 def mainloop():
     global source_coord, backup_source_coord, destination_coord, backup_destination_coord, prev_path, GRAPH
 
+    def clean_previous_path():
+        for coord_ in prev_path[1:-1]:
+            if coord_ not in obstacles:
+                reset_cell(screen, coord_)
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
@@ -93,10 +98,7 @@ def mainloop():
                     if box_coord in prev_path:
                         source_coord = backup_source_coord
                         destination_coord = backup_destination_coord
-
-                        for coord in prev_path[1:-2]:
-                            if coord not in obstacles:
-                                reset_cell(screen, coord)
+                        clean_previous_path()
 
                 elif event.button == 3:
                     reset_cell(screen, box_coord)
@@ -107,8 +109,10 @@ def mainloop():
                             GRAPH.add_edge(box_coord, neighbour_node,
                                            get_distance_from_neighbour_vector(displacement_vector))
 
+                    obstacles.discard(box_coord)
                     source_coord = backup_source_coord
                     destination_coord = backup_destination_coord
+                    clean_previous_path()
 
         if source_coord and destination_coord:
             path, distance = dijkstra(GRAPH, source_coord, destination_coord, screen)
