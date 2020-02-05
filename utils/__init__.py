@@ -146,7 +146,7 @@ def dijkstra(graph: Graph, start, end, screen_):
         # Drawing colored boxes for explored nodes
         if _buffer_elem.value != start and _buffer_elem.value != end:
             draw_square(screen_, _buffer_elem.value, VISITED_CELL_COLOR)
-            # sleep(0.01)  # Slows down the animation
+				#sleep(0.01)  # Slows down the animation
         #
 
         for i in _buffer_set:
