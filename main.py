@@ -1,7 +1,7 @@
 import pygame
 
 from settings import *
-from utils import dijkstra
+from utils import dijkstra, a_star
 from utils.draw import draw_square, reset_cell
 from utils.geometry_2d import get_node_pos_by_mouse_pos
 from utils.graph_creator import create_boxed_graph, add_vector, get_distance_from_neighbour_vector
@@ -117,7 +117,14 @@ def mainloop():
                 clean_previous_path()
 
         if source_coord and destination_coord:
-            path, distance = dijkstra(GRAPH, source_coord, destination_coord, screen)
+            if ALGORITHM == 1:
+                path_finding_algorithm = dijkstra
+            elif ALGORITHM == 2:
+                path_finding_algorithm = a_star
+            else:
+                raise Exception("INVALID ALGORITHM CHOSEN! use 1 or 2 as OPTION in setting for ALGORITHM!")
+
+            path, distance = path_finding_algorithm(GRAPH, source_coord, destination_coord, screen)
             prev_path = path.copy()
             source_coord = destination_coord = None
 

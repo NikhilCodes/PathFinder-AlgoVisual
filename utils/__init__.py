@@ -3,6 +3,10 @@ from utils.draw import draw_square, reset_cell
 from time import sleep
 
 
+def euclidean_dist(c1, c2):
+    return ((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2) ** 0.5
+
+
 class Graph:
     def __init__(self):
         self.data = dict()
@@ -113,9 +117,67 @@ class PriorityQueue:
 
 ##
 
-
 # Defining Dijkstra Algorithm
 def dijkstra(graph: Graph, start, end, screen_):
+    if not (graph.exists(start) and graph.exists(end)):
+        raise Exception("Start or End does not exist inside the graph.")
+
+    solution = {
+        start: [0, None]  # Priority Level, parent
+    }
+
+    if start == end:
+        return start
+
+    visited_nodes = set()
+    nodes_to_visit_ordered_priority_wise = PriorityQueue()
+    nodes_to_visit_ordered_priority_wise.add(start, priority=0)
+
+    while True:
+        if nodes_to_visit_ordered_priority_wise.peek().value == end:
+            break
+
+        _buffer_elem: PriorityQueue.Node = nodes_to_visit_ordered_priority_wise.peek()
+        if _buffer_elem.value in visited_nodes:
+            nodes_to_visit_ordered_priority_wise.pop()
+            continue
+
+        _buffer_set: set = graph.get_neighbours(_buffer_elem.value)
+        visited_nodes.add(_buffer_elem.value)
+        nodes_to_visit_ordered_priority_wise.pop()
+
+        # Drawing colored boxes for explored nodes
+        if _buffer_elem.value != start and _buffer_elem.value != end:
+            draw_square(screen_, _buffer_elem.value, VISITED_CELL_COLOR)
+
+        for i in _buffer_set:
+            if i[0] not in visited_nodes:
+                if solution.get(i[0]) is None or solution[i[0]][0] > i[1] + _buffer_elem.priority_lvl:
+                    solution[i[0]] = [i[1] + _buffer_elem.priority_lvl, _buffer_elem.value]
+
+                nodes_to_visit_ordered_priority_wise.add(i[0], i[1] + solution[_buffer_elem.value][0])
+
+    # Backtracking
+    parent = end
+    dist = solution[end][0]
+    path = []
+    while parent is not None:
+        path.append(parent)
+        parent = solution[parent][1]
+
+    path.reverse()
+
+    for coord in visited_nodes:
+        if coord == start:
+            continue
+
+        reset_cell(screen_, coord)
+
+    return path, dist
+
+
+# Defining A-Star Algorithm
+def a_star(graph: Graph, start, end, screen_):
     if not (graph.exists(start) and graph.exists(end)):
         raise Exception("Start or End does not exist inside the graph.")
 
@@ -146,15 +208,18 @@ def dijkstra(graph: Graph, start, end, screen_):
         # Drawing colored boxes for explored nodes
         if _buffer_elem.value != start and _buffer_elem.value != end:
             draw_square(screen_, _buffer_elem.value, VISITED_CELL_COLOR)
-				#sleep(0.01)  # Slows down the animation
-        #
+            # sleep(0.1)
 
         for i in _buffer_set:
             if i[0] not in visited_nodes:
-                if solution.get(i[0]) is None or solution[i[0]][0] > i[1] + _buffer_elem.priority_lvl:
-                    solution[i[0]] = [i[1] + _buffer_elem.priority_lvl, _buffer_elem.value]
+                print(i)
+                if solution.get(i[0]) is None or solution[i[0]][0] > i[1] + _buffer_elem.priority_lvl + euclidean_dist(
+                        i[0], end):
+                    solution[i[0]] = [i[1] + _buffer_elem.priority_lvl + euclidean_dist(
+                        i[0], end), _buffer_elem.value]
 
-                nodes_to_visit_ordered_priority_wise.add(i[0], i[1] + solution[_buffer_elem.value][0])
+                nodes_to_visit_ordered_priority_wise.add(i[0], i[1] + solution[_buffer_elem.value][0] + euclidean_dist(
+                        i[0], end))
 
     # Backtracking
     parent = end
