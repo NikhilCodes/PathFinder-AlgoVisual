@@ -208,7 +208,7 @@ def a_star(graph: Graph, start, end, screen_):
         # Drawing colored boxes for explored nodes
         if _buffer_elem.value != start and _buffer_elem.value != end:
             draw_square(screen_, _buffer_elem.value, VISITED_CELL_COLOR)
-            # sleep(0.1)
+            sleep(ANIMATION_DURATION)
 
         for i in _buffer_set:
             if i[0] not in visited_nodes:

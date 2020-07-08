@@ -7,5 +7,6 @@ START_END_CELL_COLOR = (0, 200, 100)
 VISITED_CELL_COLOR = (0, 200, 255)
 PATH_COLOR = (0, 100, 255)
 OBSTACLE_COLOR = (0, 0, 0)
-ALGORITHM = 1  # USE 1 to use Dijkstra and 2 for A-star
+ANIMATION_DURATION=0.2
+ALGORITHM = 2  # USE 1 to use Dijkstra and 2 for A-star
 #

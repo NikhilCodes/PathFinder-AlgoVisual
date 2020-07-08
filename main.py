@@ -23,7 +23,7 @@ last_mouse_button_pressed = None
 #
 
 pygame.init()
-pygame.display.set_caption("Dijkstra's Algorithm Visualizer")
+pygame.display.set_caption("PathFinder Algorithm Visualizer")
 
 screen = pygame.display.set_mode([WINDOW_SIZE, WINDOW_SIZE])
 clock = pygame.time.Clock()
